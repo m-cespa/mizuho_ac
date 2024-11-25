@@ -23,22 +23,25 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
+    print(f"Received data - dbname: {dbname}, username: {username}, password: {password}")
+
     if not dbname or not username or not password:
         return jsonify({"error": "Database name, username, and password are required."}), 400
 
     try:
-        # intialise specified db
+        # initialize specified db
         global db
         db = DatabaseUser(dbname=dbname)
 
         # attempt to login to specified db with user data
         db.login(username, password)
 
-        # store the username and dbname to track of user changes
+        # store the username and dbname to track user changes
         session['username'] = username
         session['dbname'] = dbname
         return jsonify({"message": f"User '{username}' logged in successfully to '{dbname}'."}), 200
     except Exception as e:
+        print(f"Error during login: {str(e)}")  # Add a print statement here for debugging
         return jsonify({"error": str(e)}), 400
 
 
