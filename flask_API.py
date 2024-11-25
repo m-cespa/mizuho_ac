@@ -2,8 +2,11 @@ from flask import Flask, request, jsonify, session
 from flask_session import Session
 from database_user import DatabaseUser
 from request import TradeRecord
+from flask_cors import CORS
 
 app = Flask(__name__)
+
+CORS(app)
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = 'your_secret_key_here' # secret production key
