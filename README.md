@@ -1,37 +1,53 @@
-Server setup:
+**SERVER SETUP**
 
-identify PostgreSQL version:
-`psql --version`
+Identify PostgreSQL version:
+```
+psql --version
+```
 
-edit PostgreSQL conf file:
-`sudo nano /etc/postgresql/{version}/main/postgresql.conf`
+Edit PostgreSQL conf file:
+```
+sudo nano /etc/postgresql/{version}/main/postgresql.conf
+```
 
-enable listening to specific or all ip addresses:
-`listen_addresses = '*'`
+Enable listening to specific or all ip addresses:
+```
+listen_addresses = '*'
+```
 
-setup password authentication:
-`sudo nano /etc/postgresql/{version}/main/pg_hba.conf`
+Setup password authentication:
+```
+sudo nano /etc/postgresql/{version}/main/pg_hba.conf
+```
+This allows authentication from any ip address by passing `0.0.0.0/0` or a specified ip:
+```
+host    all             all             0.0.0.0/0            md5
+```
 
-`host    all             all             0.0.0.0/0            md5`
+Restart postgresql to implement changes:
+```
+sudo systemctl restart postgresql
+```
 
-restart postgresql to implement changes:
-`sudo systemctl restart postgresql`
-
-login as superuser postgres to create new user profiles with passwords:
+Login as superuser postgres to create new user profiles with passwords:
 ```
 psql -U postgres
 CREATE USER new_user WITH PASSWORD 'new_password';
 GRANT ALL PRIVILEGES ON DATABASE your_database TO new_user;
 ```
 
-to view all users:
-`\du`
-enable logging of user activity:
+To view all users:
+```
+\du
+```
+Enable logging of user activity:
 ```
 ALTER SYSTEM SET logging_collector = 'on';
 ALTER SYSTEM SET log_statement = 'all';
 ```
 
-require user passwords to have certain complexity level:
-`ALTER SYSTEM SET password_encryption = 'scram-sha-256';`
+Require user passwords to have certain complexity level:
+```
+ALTER SYSTEM SET password_encryption = 'scram-sha-256';
+```
 
