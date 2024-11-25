@@ -2,7 +2,7 @@ import psycopg
 from request import TradeRecord
 
 class DatabaseUser:
-    def __init__(self, dbname, host="192.168.1.100", port="5432"):
+    def __init__(self, dbname, host="127.0.0.1", port="5432"):
         self.dbname = dbname
         self.host = host
         self.port = port
