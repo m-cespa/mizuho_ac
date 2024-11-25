@@ -1,5 +1,5 @@
 import psycopg
-from backend.request import TradeRecord
+from request import TradeRecord
 
 class DatabaseUser:
     def __init__(self, dbname, host="192.168.1.100", port="5432"):
