@@ -13,7 +13,6 @@
             <option value="database1">Database 1</option>
             <option value="database2">Database 2</option>
             <option value="database3">Database 3</option>
-            <!-- Add more databases as needed -->
         </select>
         <br><br>
 
@@ -28,7 +27,43 @@
         <button type="submit">Login</button>
     </form>
 
+    <div id="tradeFormContainer" style="display: none;">
+        <h2>Enter Trade Data</h2>
+        <form id="tradeForm">
+            <label for="trader">Trader:</label>
+            <input type="text" id="trader" name="trader" required>
+            <br><br>
+
+            <label for="book">Book:</label>
+            <input type="text" id="book" name="book" required>
+            <br><br>
+
+            <label for="product">Product:</label>
+            <input type="text" id="product" name="product" required>
+            <br><br>
+
+            <label for="counterparty">Counterparty:</label>
+            <input type="text" id="counterparty" name="counterparty" required>
+            <br><br>
+
+            <label for="buy">Buy/Sell:</label>
+            <input type="text" id="buy" name="buy" required>
+            <br><br>
+
+            <label for="qty">Quantity:</label>
+            <input type="number" id="qty" name="qty" required>
+            <br><br>
+
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
+            <br><br>
+
+            <button type="submit">Submit Trade</button>
+        </form>
+    </div>
+
     <script>
+        // Handle login form submission
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -50,7 +85,53 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Login success:', data);
+                if (data.message) {
+                    console.log('Login success:', data);
+                    // Hide the login form and show the trade data form
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('tradeFormContainer').style.display = 'block';
+                } else {
+                    console.error('Login failed:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        // Handle trade form submission
+        document.getElementById('tradeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const trader = document.getElementById('trader').value;
+            const book = document.getElementById('book').value;
+            const product = document.getElementById('product').value;
+            const counterparty = document.getElementById('counterparty').value;
+            const buy = document.getElementById('buy').value;
+            const qty = document.getElementById('qty').value;
+            const price = document.getElementById('price').value;
+
+            // Send trade data to Flask endpoint
+            fetch('http://localhost:5000/insert_trade', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    trader: trader,
+                    book: book,
+                    product: product,
+                    counterparty: counterparty,
+                    buy: buy,
+                    qty: qty,
+                    price: price
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Trade submission result:', data);
+                // Handle response (success or error)
+                alert(data.message || 'Trade failed!');
             })
             .catch(error => {
                 console.error('Error:', error);

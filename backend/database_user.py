@@ -1,6 +1,5 @@
 import psycopg
-from datetime import datetime
-from request import TradeRecord
+from backend.request import TradeRecord
 
 class DatabaseUser:
     def __init__(self, dbname, host="192.168.1.100", port="5432"):
@@ -20,7 +19,7 @@ class DatabaseUser:
             new_password (str): Password for the new user.
         """
         try:
-            # Connect to the PostgreSQL database as admin
+            # connect to PostgreSQL server as admin/superuser to create new user
             with psycopg.connect(
                 dbname=self.dbname,
                 user=admin_user,
@@ -30,7 +29,8 @@ class DatabaseUser:
             ) as conn:
                 conn.autocommit = True
                 with conn.cursor() as cursor:
-                    # Create new user and grant privileges
+                    # create new user and grant all database priviliges
+                    # privileges can be edites from the PostgreSQL terminal by superuser
                     cursor.execute(f"CREATE USER {new_user} WITH PASSWORD %s;", (new_password,))
                     cursor.execute(f"GRANT ALL PRIVILEGES ON DATABASE {self.dbname} TO {new_user};")
                     print(f"User '{new_user}' created and privileges granted.")
@@ -68,31 +68,28 @@ class DatabaseUser:
         else:
             print("No active session to log out from.")
 
-    def insert_trade(self, trader, book, product, cpty, buy, qty, price):
+    def insert_trade(self, trade_record: TradeRecord):
         """
-        Inserts a trade into the database.
+        Inserts a trade into the database after validating the data.
 
         Args:
-            trader (str): Name of the trader.
-            book (str): Book name.
-            product (str): Product name.
-            cpty (str): Counterparty name.
-            buy (bool): Whether the trade is a buy (True) or sell (False).
-            qty (int): Quantity of the product.
-            price (float): Price of the product.
+            trade_record (TradeRecord): Trade data encapsulated in a TradeRecord object.
         """
         if not self.connection:
             print("Error: No active database connection. Please log in first.")
             return
-        
+
         try:
+            trade_record.validate()
             with self.connection.cursor() as cursor:
                 insert_query = """
-                INSERT INTO trades (trader, book, cpty, product, buy, qty, price)
-                VALUES (%s, %s, %s, %s, %s, %s, %s);
+                INSERT INTO trades (date, time, trader, book, counterparty, product, direction, qty, price)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
                 """
-                cursor.execute(insert_query, (trader, book, product, cpty, buy, qty, price))
+                cursor.execute(insert_query, trade_record.to_tuple())
                 self.connection.commit()
                 print("Trade inserted successfully.")
         except psycopg.Error as e:
             print(f"Error inserting trade: {e}")
+        except ValueError as ve:
+            print(f"Validation error: {ve}")

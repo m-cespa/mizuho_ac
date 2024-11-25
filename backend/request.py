@@ -1,4 +1,3 @@
-# trade record class
 from datetime import datetime
 
 class TradeRecord:
